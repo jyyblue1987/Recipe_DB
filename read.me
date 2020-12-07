@@ -1,0 +1,47 @@
+Name: Berdan Sonmez
+Date: 2020-11-22
+Platform: Windows
+Compile: Build main.cpp using Visual Studio 2015
+Bug: If user provide the smaller of command string than which is needed.
+    For eg, if provide command "a s Berdan Sonmez", it does not saved
+Brief Summary:
+    I created "school" database with 5 tables as following.
+    And attached sql file with "school.sql"
+    
+    Table Design is as follow.
+
+    student {
+        id: int primary key auto increment
+        last_name: varchar(30)
+        first_name: varchar(30)
+        phone: varchar(30)
+    }
+
+    course {
+        id: int primary key auto increment
+        prefix: varchar(20)
+        number: int
+        title: varchar(40)
+        credit: int
+    }
+
+    grade {
+        id: int primary key auto increment
+        type: varchar(30)
+        score: float              
+    }
+
+    semester {
+        id: int primary key auto increment
+        code: varchar(20)
+        year: int
+        desc: text        
+    }
+
+    Take {     
+        id: int primary key auto increment
+        student_id: int
+        course_id: int
+        grade_id: int
+        semester_id: int
+    }
