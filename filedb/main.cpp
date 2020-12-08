@@ -188,6 +188,9 @@ int main ()
 				
 			mysql_free_result(res);
 
+			sprintf(query, "LOCK TABLE inventory WRITE;");
+			mysql_query(conn, query);
+
 			bool inventory_valid = true;
 			std::list<Recipes>::iterator it;
 			for (it = list1.begin(); it != list1.end(); ++it)
@@ -222,6 +225,9 @@ int main ()
 				sprintf(query, "UPDATE inventory SET quantity = quantity - %d WHERE ingredient = '%s'", it->quantity, it->ingredient.c_str()); 				
 				mysql_query(conn, query);
 			}
+
+			sprintf(query, "UNLOCK TABLES;");
+			mysql_query(conn, query);
 		}
 
 		if( choice1 == 4 )
