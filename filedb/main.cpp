@@ -149,6 +149,9 @@ int main ()
 			cout << "Quantity: ";
 			cin >> quantity;
 
+			if( quantity < 1 )
+				continue;
+
 			// Prepare Insert SQL
 			sprintf(query, "INSERT INTO recipes (recipe_name, ingredient, quantity) VALUES ('%s', '%s', '%d')", recipe_name.c_str(), ingredient.c_str(), quantity); 				
 			// Run SQL
@@ -259,6 +262,9 @@ int main ()
 			cin >> ingredient;
 			cout << "Quantity: ";
 			cin >> quantity;
+
+			if( quantity < 1 )
+				continue;
 
 			// Prepare SQL
 			sprintf(query, "SELECT * FROM inventory WHERE ingredient = '%s'", ingredient.c_str());

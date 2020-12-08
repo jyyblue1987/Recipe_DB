@@ -1,47 +1,27 @@
 Name: Berdan Sonmez
-Date: 2020-11-22
+Date: 2020-12-10
 Platform: Windows
 Compile: Build main.cpp using Visual Studio 2015
-Bug: If user provide the smaller of command string than which is needed.
-    For eg, if provide command "a s Berdan Sonmez", it does not saved
+Bug: If user provide the name of ingredient or recipe which contains while space.
+    For eg, if provide command "Berdan Sonmez", it will output infinite loop.
+    If user provide negative integer, it will not processed.
+
 Brief Summary:
-    I created "school" database with 5 tables as following.
-    And attached sql file with "school.sql"
+    Connect mysql database using host, username, password
     
-    Table Design is as follow.
+    If there is no database, program will create database.
+    After connect database, program will try to create two tables: recipe, inventory.
+    If table does not exist, program will create tables automatically.
 
-    student {
-        id: int primary key auto increment
-        last_name: varchar(30)
-        first_name: varchar(30)
-        phone: varchar(30)
-    }
+    CREATE TABLE `recipes` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `recipe_name` varchar(50) DEFAULT NULL,
+        `ingredient` varchar(50) DEFAULT NULL,
+        `quantity` int(10) DEFAULT NULL,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-    course {
-        id: int primary key auto increment
-        prefix: varchar(20)
-        number: int
-        title: varchar(40)
-        credit: int
-    }
-
-    grade {
-        id: int primary key auto increment
-        type: varchar(30)
-        score: float              
-    }
-
-    semester {
-        id: int primary key auto increment
-        code: varchar(20)
-        year: int
-        desc: text        
-    }
-
-    Take {     
-        id: int primary key auto increment
-        student_id: int
-        course_id: int
-        grade_id: int
-        semester_id: int
-    }
+    In order to guard against issues that might come up when two (or more) users simultaneously attempt to purchase ingredients for recipe(s).
+    Program introduce MySQL table locking techique.
+    So when buying recipe from store, lock read/write from inventory table from other mysql session and process buying transaction and unlock it.
+    
