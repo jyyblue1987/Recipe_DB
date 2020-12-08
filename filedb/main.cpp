@@ -140,7 +140,7 @@ int main ()
 
 		list<Recipes> list1 = list<Recipes>();
 
-		if( choice1 == 1 )	// Add receipe data
+		if( choice1 == 1 )	// Add recipe data
 		{
 			cout << "Recipe Name: ";
 			cin >> recipe_name;
@@ -149,21 +149,28 @@ int main ()
 			cout << "Quantity: ";
 			cin >> quantity;
 
+			// Prepare Insert SQL
 			sprintf(query, "INSERT INTO recipes (recipe_name, ingredient, quantity) VALUES ('%s', '%s', '%d')", recipe_name.c_str(), ingredient.c_str(), quantity); 				
+			// Run SQL
 			mysql_query(conn, query);
+
+			cout << "receipe is added successfully" << endl;
 		}
 
-		if( choice1 == 2 ) // List a recips data
+		if( choice1 == 2 ) // List a recipes data
 		{
+			// input recipe name
 			cout << "Recipe Name: ";
 			cin >> recipe_name;
 
+			// Prepare Select SQL
 			sprintf(query, "SELECT * FROM recipes WHERE recipe_name = '%s'", recipe_name.c_str());
 			mysql_query(conn, query);
 			res = mysql_use_result(conn);
 
+			// Output Query Result
 			while((row=mysql_fetch_row(res))!=NULL)
-				cout << row[1] << " " << row[2] << endl;				
+				cout << row[2] << "\t" << row[3] << endl;				
 
 			mysql_free_result(res);
 
@@ -171,13 +178,16 @@ int main ()
 		
 		if( choice1 == 3 ) // Buy recipes
 		{		
+			// Input Recipe Name
 			cout << "Recipe Name: ";
 			cin >> recipe_name;
 
+			// Prepare Select Query
 			sprintf(query, "SELECT * FROM recipes WHERE recipe_name = '%s'", recipe_name.c_str());
 			mysql_query(conn, query);
 			res = mysql_use_result(conn);
 
+			// get ingredient/quantity for a selected recipe
 			Recipes data;
 			while((row=mysql_fetch_row(res))!=NULL)
 			{
@@ -188,24 +198,28 @@ int main ()
 				
 			mysql_free_result(res);
 
+			// Lock Table to guard against issues that might come up when two (or more) users simultaneously attempt to purchase ingredients for recipe(s)
 			sprintf(query, "LOCK TABLE inventory WRITE;");
 			mysql_query(conn, query);
 
+			// check inventory is sufficient for selected recipe
 			bool inventory_valid = true;
 			std::list<Recipes>::iterator it;
 			for (it = list1.begin(); it != list1.end(); ++it)
 			{
+				// Prepare Select SQL
 				sprintf(query, "SELECT * FROM inventory WHERE ingredient = '%s'", it->ingredient.c_str());
 				mysql_query(conn, query);
 				res = mysql_use_result(conn);
 
+				// get inventory's count 
 				int inventory_quantity = 0;
 				if((row=mysql_fetch_row(res))!=NULL)
 				{
 					inventory_quantity = atoi(row[2]);				
 				}
 
-				if( inventory_quantity < it->quantity )
+				if( inventory_quantity < it->quantity ) // if inventory quantity is smaller than buying quantity
 				{					
 					inventory_valid = false;
 					mysql_free_result(res);
@@ -214,43 +228,60 @@ int main ()
 				mysql_free_result(res);
 			}
 
-			if( inventory_valid == false )
+			if( inventory_valid == false ) // inventory quantity is invalid
 			{
+				sprintf(query, "UNLOCK TABLES;");
+				mysql_query(conn, query);
+
 				cout << "Failure of purchase" << endl;
 				continue;
 			}
 
+			// if inventory is sufficient
 			for (it = list1.begin(); it != list1.end(); ++it)
 			{
+				// decrease quantity
 				sprintf(query, "UPDATE inventory SET quantity = quantity - %d WHERE ingredient = '%s'", it->quantity, it->ingredient.c_str()); 				
 				mysql_query(conn, query);
 			}
 
+			// Unlock Tables
 			sprintf(query, "UNLOCK TABLES;");
 			mysql_query(conn, query);
+
+			cout << "You bought Recipe's ingredients successfully." << endl;
 		}
 
 		if( choice1 == 4 )
 		{			
+			// Receive Ingredient and Quantity
 			cout << "Ingredient: ";
 			cin >> ingredient;
 			cout << "Quantity: ";
 			cin >> quantity;
 
+			// Prepare SQL
 			sprintf(query, "SELECT * FROM inventory WHERE ingredient = '%s'", ingredient.c_str());
 			mysql_query(conn, query);
 			res = mysql_use_result(conn);
 
+			// Check if exist ingredient on inventory
 			bool exist = false;			
 			if((row=mysql_fetch_row(res))!=NULL)
 				exist = true;				
 			
 			mysql_free_result(res);
 
-			if( exist == false )
+			if( exist == false )	// if not exist, add inventory
+			{
 				sprintf(query, "INSERT INTO inventory (ingredient, quantity) VALUES ('%s', '%d')", ingredient.c_str(), quantity); 				
-			else
+				cout << "New " << ingredient << " is added successfully" << endl;
+			}
+			else					// if exist, increase quantity
+			{
 				sprintf(query, "UPDATE inventory SET quantity = quantity + %d WHERE ingredient = '%s'", quantity, ingredient.c_str()); 				
+				cout << "New " << ingredient << "'s quantity is increased successfully" << endl;
+			}
 			
 			mysql_query(conn, query);			
 		}
