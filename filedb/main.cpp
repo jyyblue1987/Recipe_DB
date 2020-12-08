@@ -40,45 +40,45 @@ int main ()
 	int port = 3306;
 	string username = "root";
 	string password = "";
-	string dbname = "store";
+	string dbname = "store1";
 	
 	conn = mysql_init(NULL);
 
 	while(true)
 	{		
 		// read command line
-		//getline(cin, param); 
-		//if( param.compare("q") == 0 )
-		//	break;
+		getline(cin, param); 
+		if( param.compare("q") == 0 )
+			break;
 
 		// split command string
-		//string arr[MAX_PARAM];
-		//int param_count = 0;
-		//stringstream ssin(param);
-		//while (ssin.good() && param_count < MAX_PARAM){
-		//	ssin >> arr[param_count];
-		//	++param_count;
-		//}
+		string arr[MAX_PARAM];
+		int param_count = 0;
+		stringstream ssin(param);
+		while (ssin.good() && param_count < MAX_PARAM){
+			ssin >> arr[param_count];
+			++param_count;
+		}
 
 		// check param count
-		//if( param_count < 4 )	// if not provide sufficient information about connection
-		//{
-		//	cout << "Please input correct value" << endl;
-		//	continue;
-		//}
+		if( param_count < 4 )	// if not provide sufficient information about connection
+		{
+			cout << "Please input correct value" << endl;
+			continue;
+		}
 
-		//hostname = arr[0];
-		//port = stoi(arr[1]);
-		//username = arr[2];
-		//password = "";
-		//dbname = "";
-		//if( param_count < 5 ) // empty password
-		//	dbname = arr[3];
-		//else // non empty password
-		//{
-		//	password = arr[3];
-		//	dbname = arr[4];
-		//}
+		hostname = arr[0];
+		port = stoi(arr[1]);
+		username = arr[2];
+		password = "";
+		dbname = "";
+		if( param_count < 5 ) // empty password
+			dbname = arr[3];
+		else // non empty password
+		{
+			password = arr[3];
+			dbname = arr[4];
+		}
 
 		// connect mysql
 		if (!mysql_real_connect(conn, hostname.c_str(), username.c_str(), password.c_str(), "", port, NULL, 0))
